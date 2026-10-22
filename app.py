@@ -89,7 +89,7 @@ Generate:
     )
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.8-flash",
         contents=prompt,
         config=config
     )
@@ -135,68 +135,4 @@ if uploaded_file is not None:
                     except Exception as e:
                         st.error(f"Error during generation: {e}")
 
-# Render Generated Content
-if st.session_state.study_data:
-    data = st.session_state.study_data
-    tab_summary, tab_quiz, tab_flashcards = st.tabs(["📝 Summary", "🧪 Quiz (10 MCQs)", "🗂️ Flashcards"])
-
-    # Tab 1: Summary
-    with tab_summary:
-        st.subheader("Document Summary")
-        st.markdown(data.get("summary", "No summary generated."))
-
-    # Tab 2: Quiz
-    with tab_quiz:
-        st.subheader("10-Question Knowledge Check")
-        mcqs = data.get("mcqs", [])
-        
-        score = 0
-        all_answered = True
-
-        for idx, item in enumerate(mcqs):
-            st.markdown(f"**Question {idx + 1}:** {item['question']}")
-            selected = st.radio(
-                f"Select an answer for Q{idx + 1}:",
-                options=item["options"],
-                index=None,
-                key=f"mcq_{idx}",
-                label_visibility="collapsed"
-            )
-            st.session_state.selected_answers[idx] = selected
-
-            if selected is None:
-                all_answered = False
-            else:
-                if selected == item["correct_option"]:
-                    st.success(f"✅ Correct! {item.get('explanation', '')}")
-                    score += 1
-                else:
-                    st.error(f"❌ Incorrect. Correct answer: **{item['correct_option']}**\n\n_{item.get('explanation', '')}_")
-
-            st.divider()
-
-        if all_answered and len(mcqs) > 0:
-            st.metric(label="Final Score", value=f"{score} / {len(mcqs)}")
-
-    # Tab 3: Flashcards
-    with tab_flashcards:
-        st.subheader("Key Concept Flashcards")
-        cards = data.get("flashcards", [])
-        
-        cols = st.columns(2)
-        for idx, card in enumerate(cards):
-            col = cols[idx % 2]
-            with col:
-                with st.container(border=True):
-                    st.markdown(f"### 💡 {card['front']}")
-                    is_revealed = idx in st.session_state.revealed_flashcards
-                    
-                    if is_revealed:
-                        st.info(f"**Definition / Answer:**\n\n{card['back']}")
-                        if st.button("Hide Answer", key=f"hide_{idx}"):
-                            st.session_state.revealed_flashcards.remove(idx)
-                            st.rerun()
-                    else:
-                        if st.button("Reveal Answer", key=f"reveal_{idx}"):
-                            st.session_state.revealed_flashcards.add(idx)
-                            st.rerun()
+#
